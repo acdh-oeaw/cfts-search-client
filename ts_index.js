@@ -26,8 +26,10 @@ const projcetLabels = {
   "Schnitzler-Zeitungen": "Schnitzler-Zeitungen",
   "Schnitzler-Mikrofilme": "Schnitzler-Mikrofilme",  
   "schnitzler-kino": "Schnitzler-Kino",
+  "schnitzler-interviews": "Schnitzler-Interviews",
   "rita": "Reading in the Alps",
   "sbt": "Schnitzler-Tagebuch",
+  "STB": "Staribacher Tagebuch",
   "bahr-static": "Bahr-Schnitzler-Briefwechsel",
   "hbtv": "Bahr-Textverzeichnis",
   "legalkraus": "Rechtsakten Karl Kraus",
@@ -48,6 +50,11 @@ const projcetLabels = {
   "hsl": "Hanslick Online",
   "gestrich_index": "Gestrich Index",
 };
+
+const blacklistedProjectFacets = new Set([
+  "staribacher",
+  "gestrich_index"
+]);
 
 
 const searchClient = typesenseInstantsearchAdapter.searchClient;
@@ -165,10 +172,12 @@ search.addWidgets([
       searchable: true,
       limit: 100,
       transformItems(items) {
-        return items.map(item => ({
-          ...item,
-          highlighted: projcetLabels[item.value]
-        }));
+        return items
+          .filter((item) => !blacklistedProjectFacets.has(item.value))
+          .map(item => ({
+            ...item,
+            highlighted: projcetLabels[item.value] || item.label
+          }));
       },
       cssClasses: {
         searchableInput: 'form-control form-control-sm mb-2 border-light-2',
